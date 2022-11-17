@@ -60,8 +60,16 @@ func push(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprintf(w, "POST request successful")
 	directory := r.FormValue("directory")
+	pk := r.FormValue("pk")
 
 	fmt.Fprintf(w, "Directory = %s\n", directory)
+	fmt.Fprintf(w, "Private Key = %s\n", pk)
+
+	publicKeys, err := ssh.NewPublicKeysFromFile("git", pk, "")
+	if err != nil {
+		fmt.Println("generate publickeys failed: %s\n", err.Error())
+		return
+	}
 
 	// Opens an already existing repository.
 	req, err := git.PlainOpen(directory)
@@ -71,12 +79,12 @@ func push(w http.ResponseWriter, r *http.Request) {
 	workTree, err := req.Worktree()
 
 	//Info("echo \"hello world!\" > example-git-file")
-	filename := filepath.Join(directory, "git-push-example")
+	filename := filepath.Join(directory, "git-push-example-2")
 	err = ioutil.WriteFile(filename, []byte("first git push!"), 0644)
 
 	// Adds the new file to the staging area.
 	//Info("git add example-git-file")
-	_, err = workTree.Add("example-git-file")
+	_, err = workTree.Add("git-push-example-2")
 
 	// We can verify the current status of the worktree using the method Status.
 	//Info("git status --porcelain")
@@ -104,7 +112,9 @@ func push(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(obj)
 
 	// push using default options
-	err = req.Push(&git.PushOptions{})
+	err = req.Push(&git.PushOptions{
+		Auth: publicKeys,
+	})
 
 	fmt.Println(err)
 

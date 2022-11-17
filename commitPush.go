@@ -9,12 +9,19 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 )
 
 func main() {
 
-	directory := os.Args[1]
+	directory, privateKey := os.Args[1], os.Args[2]
 	fmt.Println(directory)
+
+	publicKeys, err := ssh.NewPublicKeysFromFile("git", privateKey, "")
+	if err != nil {
+		fmt.Println("generate publickeys failed: %s\n", err.Error())
+		return
+	}
 
 	// Opens an already existing repository.
 	r, err := git.PlainOpen(directory)
@@ -23,12 +30,12 @@ func main() {
 	w, err := r.Worktree()
 
 	//Info("echo \"hello world!\" > example-git-file")
-	filename := filepath.Join(directory, "example-git-file")
+	filename := filepath.Join(directory, "example-git-file-2")
 	err = ioutil.WriteFile(filename, []byte("hello world!"), 0644)
 
 	// Adds the new file to the staging area.
 	//Info("git add example-git-file")
-	_, err = w.Add("example-git-file")
+	_, err = w.Add("example-git-file-2")
 
 	// We can verify the current status of the worktree using the method Status.
 	//Info("git status --porcelain")
@@ -56,5 +63,8 @@ func main() {
 	fmt.Println(obj)
 
 	// push using default options
-	err = r.Push(&git.PushOptions{})
+	err = r.Push(&git.PushOptions{
+		Auth: publicKeys,
+	})
+	fmt.Println(err)
 }
