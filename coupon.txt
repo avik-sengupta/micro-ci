@@ -1,1 +1,20 @@
-coupon1
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sample Page</title>
+</head>
+<body>
+
+  <h1>Hello World</h1>
+  
+  <p>This is a sample page for demonstrating HTML.</p>
+  
+  
+  <a href="https://www.example.com">Example Link</a>
+  
+  <div>
+    <button>Click Me</button>
+  </div>
+
+</body>
+</html>
